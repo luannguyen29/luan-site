@@ -4,14 +4,14 @@ export const profile = {
   name: 'Nguyễn Bá Ngũ Luân',
   shortName: 'Luân',
   initials: 'NL',
-  role: 'System Administrator',
+  role: 'System Engineer',
   location: 'Ho Chi Minh City, Vietnam',
   email: 'vn77.nguyenluan@gmail.com',
   github: '', // ví dụ: 'https://github.com/your-name'
   linkedin: '', // ví dụ: 'https://www.linkedin.com/in/your-name'
   headline: 'I keep servers fast, secure and online.',
   intro:
-    'System administrator with 5+ years on Linux and Windows infrastructure. I run virtualization, hosting stacks, network security and backups, and write the scripts and tools that keep them healthy.',
+    'System Engineer with 6+ years on Linux and Windows infrastructure. I run virtualization, hosting stacks, network security and backups, and write the scripts and tools that keep them healthy.',
   years: '5+',
 };
 
