@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://luan-site.workers.dev/sitemap-index.xml

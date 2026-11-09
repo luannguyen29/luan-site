@@ -1,0 +1,188 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { profile, terminal, expertise, approach } from '../data/profile';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+---
+<Base>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <p class="hello">{profile.name}, {profile.role}</p>
+        <h1>{profile.headline}</h1>
+        <p class="lead">{profile.intro}</p>
+        <div class="cta">
+          <a class="btn btn-primary" href={`mailto:${profile.email}`}>Email me</a>
+          <a class="btn btn-ghost" href="#expertise">See what I do</a>
+        </div>
+        <p class="meta">{profile.location} · {profile.years} years in infrastructure</p>
+      </div>
+
+      <div class="hero-visual">
+        <img class="portrait" src="/avatar.jpg" alt={`Portrait of ${profile.name}`} width="300" height="400" loading="eager" />
+        <div class="term" role="img" aria-label="Status of the systems I run: all healthy">
+          <div class="term-bar" aria-hidden="true"><i></i><i></i><i></i><span>status</span></div>
+          <pre class="mono" aria-hidden="true"><span class="prompt">$</span> systemctl status --all
+{terminal.map((t, i) => <span class="row" style={`--i:${i}`}><b class="dot"></b>{t.service.padEnd(16, ' ')}<em>{t.state}</em>{'\n'}</span>)}</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERTISE -->
+  <section id="expertise" class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Expertise</h2>
+        <p>The systems I own day to day, and the tools I use to keep them running.</p>
+      </div>
+      <div class="bento">
+        {expertise.map((e) => (
+          <article class:list={['tile', { wide: e.size === 'wide', full: e.size === 'full' }]}>
+            <h3>{e.title}</h3>
+            <p>{e.text}</p>
+            <ul class="tags">{e.tools.map((t) => <li>{t}</li>)}</ul>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- APPROACH -->
+  <section id="approach" class="section approach">
+    <div class="container">
+      <div class="section-head">
+        <h2>How I handle an incident</h2>
+        <p>The same four steps whether it is a slow site, a full disk or an infected account.</p>
+      </div>
+      <ol class="steps">
+        {approach.map((s, i) => (
+          <li>
+            <span class="step-n" aria-hidden="true">{i + 1}</span>
+            <h3>{s.title}</h3>
+            <p>{s.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- BLOG -->
+  {posts.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="blog-head">
+          <div class="section-head">
+            <h2>From the blog</h2>
+            <p>Incident write-ups, scripts and notes from running servers.</p>
+          </div>
+          <a class="btn btn-ghost" href="/blog/">All posts</a>
+        </div>
+        <div class="cards">
+          {posts.map((p) => (
+            <a class="card" href={`/blog/${p.id}/`}>
+              <time datetime={p.data.pubDate.toISOString()}>{fmt(p.data.pubDate)}</time>
+              <h3>{p.data.title}</h3>
+              <p>{p.data.description}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- CONTACT -->
+  <section class="contact">
+    <div class="container contact-inner">
+      <div>
+        <h2>Need someone to keep your infrastructure steady?</h2>
+        <p>I reply to every email, usually within a day.</p>
+      </div>
+      <a class="btn btn-light" href={`mailto:${profile.email}`}>{profile.email}</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Hero */
+  .hero { padding-block: clamp(3rem, 7vw, 6rem) clamp(2rem, 5vw, 4rem); }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+  .hello { margin: 0 0 1.25rem; font-weight: 600; color: var(--muted); }
+  .hero h1 { font-size: clamp(2.5rem, 1.4rem + 4.6vw, 4.6rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1.02; max-width: 13ch; }
+  .lead { font-size: clamp(1.05rem, 1rem + 0.3vw, 1.2rem); color: var(--muted); max-width: 36rem; margin: 1.5rem 0 2rem; }
+  .cta { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .meta { margin: 1.75rem 0 0; font-size: 0.92rem; color: var(--muted); }
+
+  .hero-visual { position: relative; justify-self: end; width: min(100%, 24rem); padding-bottom: 4.5rem; }
+  .portrait { width: 82%; margin-left: auto; aspect-ratio: 3 / 4; object-fit: cover; border-radius: var(--radius-l); background: var(--surface-2); }
+  .term { position: absolute; left: 0; bottom: 0; width: 88%; background: #0f1e3a; color: #d6e0f0; border-radius: var(--radius-m); box-shadow: 0 20px 40px rgb(15 30 58 / 0.25); overflow: hidden; }
+  @media (prefers-color-scheme: dark) { .term { background: #050b17; border: 1px solid var(--line); } }
+  .term-bar { display: flex; align-items: center; gap: 0.35rem; padding: 0.6rem 0.8rem; border-bottom: 1px solid rgb(255 255 255 / 0.08); }
+  .term-bar i { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: rgb(255 255 255 / 0.18); }
+  .term-bar span { margin-left: auto; font-size: 0.75rem; color: rgb(255 255 255 / 0.45); }
+  .term pre { margin: 0; padding: 0.85rem 1rem 1rem; font-size: clamp(0.72rem, 0.68rem + 0.2vw, 0.82rem); line-height: 1.75; white-space: pre; overflow-x: auto; }
+  .prompt { color: #7f9cff; }
+  .row { display: inline; opacity: 0; animation: up .35s ease-out forwards; animation-delay: calc(var(--i) * 120ms + 300ms); }
+  .row em { font-style: normal; color: #4fe0a6; }
+  .dot { display: inline-block; width: 0.45rem; height: 0.45rem; margin-right: 0.6rem; border-radius: 50%; background: #4fe0a6; vertical-align: 0.1em; }
+  @keyframes up { to { opacity: 1; } }
+
+  /* Expertise bento */
+  .bento { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); padding: clamp(1.4rem, 2.5vw, 2rem); display: flex; flex-direction: column; gap: 0.9rem; }
+  .tile.wide { grid-column: span 2; }
+  .tile.full { grid-column: 1 / -1; }
+  .tile:first-child { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .tile:first-child p { color: color-mix(in srgb, var(--bg) 75%, transparent); }
+  .tile:first-child .tags li { background: color-mix(in srgb, var(--bg) 14%, transparent); color: var(--bg); }
+  .tile h3 { font-size: 1.3rem; }
+  .tile p { margin: 0; color: var(--muted); flex: 1; }
+
+  /* Approach */
+  .approach { background: var(--surface); border-block: 1px solid var(--line); }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2rem; counter-reset: s; }
+  .steps li { position: relative; padding-top: 1.25rem; border-top: 2px solid var(--line); }
+  .steps li:first-child { border-top-color: var(--accent); }
+  .step-n { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: var(--surface-2); font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; }
+  .steps h3 { font-size: 1.15rem; margin-bottom: 0.5rem; }
+  .steps p { margin: 0; color: var(--muted); }
+
+  /* Blog cards */
+  .blog-head { display: flex; justify-content: space-between; align-items: end; gap: 1.5rem; flex-wrap: wrap; margin-bottom: clamp(2rem, 4vw, 3rem); }
+  .blog-head .section-head { margin-bottom: 0; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: 1rem; }
+  .card { display: flex; flex-direction: column; gap: 0.6rem; padding: 1.5rem; border-radius: var(--radius-m); background: var(--surface); border: 1px solid var(--line); color: var(--ink); text-decoration: none; transition: border-color .15s; }
+  .card:hover { border-color: var(--accent); }
+  .card time { font-size: 0.85rem; color: var(--muted); }
+  .card h3 { font-size: 1.15rem; }
+  .card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+  /* Contact band */
+  .contact { background: var(--band); color: var(--band-ink); padding-block: clamp(3.5rem, 7vw, 5.5rem); }
+  .contact-inner { display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap; }
+  .contact h2 { font-size: clamp(1.6rem, 1.2rem + 1.8vw, 2.4rem); max-width: 22ch; }
+  .contact p { margin: 0.75rem 0 0; color: color-mix(in srgb, var(--band-ink) 70%, transparent); }
+  .btn-light { background: #ffffff; color: #0f1e3a; max-width: 100%; overflow-wrap: anywhere; }
+  .btn-light:hover { background: #dfe6f5; }
+
+  /* Tablet */
+  @media (max-width: 1023px) {
+    .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .tile.wide { grid-column: span 2; }
+    .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  /* Mobile */
+  @media (max-width: 759px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-visual { justify-self: center; width: min(100%, 22rem); }
+    .bento { grid-template-columns: 1fr; }
+    .tile.wide, .tile.full { grid-column: auto; }
+    .steps { grid-template-columns: 1fr; gap: 1.5rem; }
+    .contact-inner .btn { width: 100%; }
+  }
+</style>
